@@ -41,6 +41,7 @@ class Company
     return @array_of_relevant_docs if @array_of_relevant_docs.length > 0
     get_personelle_docs
     get_keyword_docs
+    @array_of_relevant_docs.uniq! { |doc| doc["ID"]} 
   end
 
   def get_personelle_docs
@@ -60,7 +61,8 @@ class Company
       slideshare_api = SlideshareAPI.new
       @array_of_relevant_docs += slideshare_api.search_by_query(key_word + " " + @name, 1)
       puts "Amount Of Docs: " + @array_of_relevant_docs.length.to_s
-    end 
+    end
+    @key_words.push(@name) if !@key_words.include? @name
   end
 
   def get_split_names

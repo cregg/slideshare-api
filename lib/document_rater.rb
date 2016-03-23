@@ -15,10 +15,9 @@ class DocumentRater
     end
 
     def update_and_return_rating_array
-        byebug
         ranked_docs = $redis[@key] != nil ? JSON.parse($redis[@key]) : []
         tf_dash_idf = TFDashIDF.new(@array_of_search_terms, @array_of_docs.map{|doc| doc["Transcript"]})
-        byebug
+        docs_parsed = 0
         @array_of_docs.each do |document|
             rating = 0
             document["found_terms"] = [];
@@ -29,6 +28,8 @@ class DocumentRater
             document["rating"] = rating.nan? ? 0 : rating
             ranked_docs.push document
             ranked_docs = ranked_docs.sort_by {|hash| hash["rating"] * -1}
+            docs_parsed += 1
+            $redis[@key + "_status"] = "Parsing Doc: " + docs_parsed.to_s + "/" + @array_of_docs.length.to_s
             $redis[@key] = ranked_docs.to_json
         end
         ranked_docs
