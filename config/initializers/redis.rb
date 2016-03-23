@@ -1,0 +1,1 @@
+$redis = Redis::Namespace.new("slideshare", :redis => Redis.new)

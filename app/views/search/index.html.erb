@@ -1,0 +1,8 @@
+<%= csrf_meta_tags %>
+<h1>Search#index</h1>
+<p>Find me in app/views/search/index.html.erb</p>
+<form action="/search/new/" method="post">
+    <label>Company Name: </label><input type="text" name="company_name"></input>
+    <label>Company Web Address: </label><input type="text" name="company_url"></input>
+    <input type="submit" value="Search!"/>
+</form>
