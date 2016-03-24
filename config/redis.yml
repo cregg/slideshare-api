@@ -1,0 +1,14 @@
+#config/redis.yml
+default:
+  host: localhost
+  port: 6379
+development:
+  db: 0
+#  namespace: appname_dev
+test:
+  db: 1
+#  namespace: appname_test
+production:
+  db: 2
+  host: redis://h:p9t4r62rukgil2bdnfmuj3t7l8g@ec2-54-227-252-69.compute-1.amazonaws.com:11089
+  namespace: slideshare
