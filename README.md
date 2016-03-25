@@ -24,6 +24,10 @@ Background Job interface
 
 ## Issues:
 
+I haven't extensively tested this program. But it works relatively well with hootsuite.com, apple.com, and nike.com.
+
+Redis: The redis instance I'm using on heroku is kind of small. I imagine it's easy to overload it with the data from the documents. 
+
 Slideshare Access: Slideshare throttles my number of searches in a day. That caused me a few problems. Extensive use of this app will cause it fail. 
 
 Speed: It's can be pretty slow parsing and ranking the documents.
@@ -31,5 +35,7 @@ Speed: It's can be pretty slow parsing and ranking the documents.
 ### Suggestions if I were to continue further improving this application
 
 Use Concurrency to retrieve SlideShare documents + Use Concurrency to parse the docs as well.
+
+Set up Server Sent Events. This way the client doesn't have to continuously ping the server. 
 
 Use LinkedIn API to search for further employees of the company (This requires permission from LinkedIn after a review of your app).
