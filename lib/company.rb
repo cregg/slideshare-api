@@ -1,5 +1,5 @@
 class Company
-  attr_reader :array_of_relevant_docs, :key_words
+  attr_reader :array_of_relevant_docs, :key_words, :key_people_names
 
   @pronouns
   @top_words
@@ -7,68 +7,64 @@ class Company
   @status
   @url
   @name
+  @hash
   @key_people_names
   @array_of_relevant_docs
   @key_words
 
-  def initialize name, url
+  def initialize name, url, hash
     @name = name
     @url = url
+    @hash = hash
     @array_of_relevant_docs = []
     @key_people_names = []
     @key_words = []
   end
-
-  # def get_tag_docs
-  #   return @array_of_relevant_docs if !@array_of_relevant_docs.empty?
-  #   init_pronouns_and_keywords 10
-  #   pronouns_and_keywords = @pronouns + @top_words.reject { |word| @pronouns.include? word }
-  #   pronouns_and_keywords.each do | pronoun |
-  #     puts pronoun
-  #     api = SlideshareAPI.new
-  #     tag_docs = api.search_by_tag pronoun
-  #     # if the description doens't contain the company name we're going to toss it.
-  #     tag_docs = tag_docs.reject {|document| document["Description"] == nil}
-  #     tag_docs_containing_company_name = tag_docs.reject {|document| document["Description"].downcase.include? @name.downcase}
-  #     @array_of_relevant_docs = @array_of_relevant_docs + tag_docs_containing_company_name if tag_docs_containing_company_name != nil
-  #   end
-  #   @array_of_relevant_docs = @array_of_relevant_docs.uniq!
-  #   $redis[@name] = @array_of_relevant_docs.to_json
-  #   @array_of_relevant_docs
-  # end
 
   def get_rel_docs
     return @array_of_relevant_docs if @array_of_relevant_docs.length > 0
     get_personelle_docs
     get_keyword_docs
     @array_of_relevant_docs.uniq! { |doc| doc["ID"]} 
+    @array_of_relevant_docs.keep_if { |doc| doc["Transcript"] != nil }
+    @array_of_relevant_docs.keep_if { |doc| doc["Transcript"].downcase.include? @name.downcase } 
   end
 
+  # Split names for easier word recognition in docs. Thought this might improve results. It does the opposite.  
+  # def get_split_names
+  #   @key_people_names = @key_people_names.map{|name| name.split(" ")}.flatten
+  # end
+
+private
+  # Get documents that are related to the company based on Personelle received from FullContact
+  # Should probably combine with get_keyword_docs to DRY things up. 
   def get_personelle_docs
     fc_api = FullContactAPI.new @url
     @key_people_names = fc_api.get_key_people
+    $redis[@hash + "_key_people"] = @key_people_names
     @key_people_names.each do |person_name|
       slideshare_api = SlideshareAPI.new
       @array_of_relevant_docs += slideshare_api.search_by_query(person_name + " " + @name, 1)
+      $redis[@hash + "_status"] = "Searching... found " + @array_of_relevant_docs.length.to_s + " docs so far."
       puts "Amount Of Docs: " + @array_of_relevant_docs.length.to_s
     end
   end
 
+  # Get documents that are related to the company based on keywords received from FullContact
   def get_keyword_docs
     fc_api = FullContactAPI.new @url
     @key_words = fc_api.get_keywords
+    $redis[@hash + "_key_words"] = @key_words
     @key_words.each do | key_word |
       slideshare_api = SlideshareAPI.new
       @array_of_relevant_docs += slideshare_api.search_by_query(key_word + " " + @name, 1)
-      puts "Amount Of Docs: " + @array_of_relevant_docs.length.to_s
+      $redis[@hash + "_status"] = "Searching... found " + @array_of_relevant_docs.length.to_s + " docs so far."
     end
-    @key_words.push(@name) if !@key_words.include? @name
+    @key_words.push(@name.downcase) if !@key_words.include? @name.downcase
   end
 
-  def get_split_names
-    @key_people_names.map{|name| name.split(/W+/)}.flatten
-  end
-
+  
+  # Methods below this line are not used. I had built them to try and scraper info from the company website. But then I found Full Contact. 
   def get_top_ten_words
     return JSON.parse($redis[@name + "_search_terms"]) if $redis[@name + "_search_terms"].length > 0
     company_meta_data = MetaInspector.new(@url)
@@ -125,5 +121,23 @@ class Company
     ranked_words = tgr.get_words(tagged_text).sort_by { | word, count | count * -1 } 
     ranked_words[0..top_number].map { | word_count_pair | word_count_pair[0].downcase }    
   end
+
+   # def get_tag_docs
+  #   return @array_of_relevant_docs if !@array_of_relevant_docs.empty?
+  #   init_pronouns_and_keywords 10
+  #   pronouns_and_keywords = @pronouns + @top_words.reject { |word| @pronouns.include? word }
+  #   pronouns_and_keywords.each do | pronoun |
+  #     puts pronoun
+  #     api = SlideshareAPI.new
+  #     tag_docs = api.search_by_tag pronoun
+  #     # if the description doens't contain the company name we're going to toss it.
+  #     tag_docs = tag_docs.reject {|document| document["Description"] == nil}
+  #     tag_docs_containing_company_name = tag_docs.reject {|document| document["Description"].downcase.include? @name.downcase}
+  #     @array_of_relevant_docs = @array_of_relevant_docs + tag_docs_containing_company_name if tag_docs_containing_company_name != nil
+  #   end
+  #   @array_of_relevant_docs = @array_of_relevant_docs.uniq!
+  #   $redis[@name] = @array_of_relevant_docs.to_json
+  #   @array_of_relevant_docs
+  # end
 
 end

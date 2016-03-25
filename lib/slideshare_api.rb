@@ -19,8 +19,7 @@ class SlideshareAPI
     hash = Digest::SHA1.hexdigest (API_SECRET + timestamp.to_s)
     queryString = "https://www.slideshare.net/api/2/search_slideshows?q=#{query}&api_key=#{API_KEY}&hash=#{hash}&ts=#{timestamp.to_s}&items_per_page=50&page=#{page}&detailed=1&get_transcript=1"
     response = HTTParty.get queryString
-    total = response["Slideshows"]["Meta"]["TotalResults"].to_i
-    response["Slideshows"]["Slideshow"]
+    return response["Slideshows"]["Slideshow"]
   end
 
   def search_by_tag tag

@@ -35,7 +35,7 @@ class DocumentRater
         ranked_docs
     end
 
-    #Deprecated but holding on for fallback incase.
+    #Deprecated but holding on for fallback.
     def update_and_return_rating_array_dep
         ranked_docs = $redis[@key] != nil ? JSON.parse($redis[@key]) : []
         byebug

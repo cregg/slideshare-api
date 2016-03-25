@@ -1,9 +1,26 @@
 == README
 
-Slideshare backend. Submit a company name, company url.
+# Slideshare Back End
 
-Post to company name, company url to /search/create
+Hi all. I've kind of hacked this together. So if you try and break it, I'm sure you'll be able to. 
 
-Receive Hash
+Hosted @ https://slideshare-backend.herokuapp.com.
 
-Use Hash to get results from /search/{hash}
+The front end built to access the back end can be found @ https://slideshare-frontend.herokuapp.com.
+
+
+## Endpoints
+
+### /search/create
+
+POST company name, company url to this endpoint in order to start your search for docs. 
+
+### /search/{hash}
+
+GET from this endpoint returns a hash containing the search status, important company employees, company key words, and docs. 
+
+## Issues:
+
+Speed: It's can be pretty slow parsing and ranking the documents.
+
+Imporvements: Use Concurrency to retrieve SlideShare documents + Use Concurrency to parse the docs as well. 

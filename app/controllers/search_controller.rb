@@ -17,12 +17,10 @@ class SearchController < ApplicationController
 
   def show
     items = $redis[params[:id]]
-    status = $redis[params[:id] + "_status"]
+    status = $redis[params[:id] + "_status"] == nil ? "" : $redis[params[:id] + "_status"]
+    key_people = $redis[params[:id] + "_key_people"]
+    key_words = $redis[params[:id] + "_key_words"]
     puts "Status: " + status
-    render json: {:items => items, :status => status}
-  end
-
-  
-
-    
+    render json: { :items => items, :status => status, :key_people => key_people, :key_words => key_words }
+  end  
 end
