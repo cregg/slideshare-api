@@ -18,6 +18,10 @@ POST company name, company url to this endpoint in order to start your search fo
 
 GET from this endpoint returns a hash containing the search status, important company employees, company key words, and docs. 
 
+### /sidekiq
+
+Background Job interface
+
 ## Issues:
 
 Slideshare Access: Slideshare throttles my number of searches in a day. That caused me a few problems. Extensive use of this app will cause it fail. 
