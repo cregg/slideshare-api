@@ -22,10 +22,13 @@ class DocumentRater
             rating = 0
             document["found_terms"] = [];
             @array_of_search_terms.each do |term| 
-                rating += tf_dash_idf.get_term_score(document["Transcript"].downcase, term)
+                rating += tf_dash_idf.get_term_score(document["ID"], document["Transcript"].downcase, term)
                 document["found_terms"].push(term) if document["Transcript"].include? term
             end
             document["rating"] = rating.nan? ? 0 : rating
+            #Let's remove the transcript before storing. The transcript's can be pretty big. 
+            document["Transcript"] = ""
+            
             ranked_docs.push document
             ranked_docs = ranked_docs.sort_by {|hash| hash["rating"] * -1}
             docs_parsed += 1

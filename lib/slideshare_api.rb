@@ -22,6 +22,23 @@ class SlideshareAPI
     return response["Slideshows"]["Slideshow"]
   end
 
+  def futureTest
+    ids = [1,2,3,4,5,6,7,8,9]
+    futures = []
+    json_array = []
+    ids.each do | number |
+      futures.push(Concurrent::Future.execute{ HTTParty.get("http://jsonplaceholder.typicode.com/users/" + number.to_s)})
+    end
+    loop do
+      break if futures.all? { | future | future.fulfilled? }
+    end
+    futures.each do | future |
+      json_array.push(future.value)
+    end
+    json_array.each{ | item | puts item }
+    puts json_array.length
+  end
+
   def search_by_tag tag
     total_results = []
     timestamp = Time.now.to_i
